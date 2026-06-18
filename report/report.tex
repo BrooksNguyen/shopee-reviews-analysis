@@ -181,11 +181,32 @@ Dữ liệu được chia theo tỷ lệ phân hoạch chuẩn: **80\% huấn lu
 \subsection{Kết quả thống kê độ dài câu (EDA)}
 Kết quả thống kê từ tập huấn luyện (Train set) sau khâu lọc dữ liệu:
 \begin{itemize}
-    \item Độ dài trung bình trước tiền xử lý: **15.42** từ.
-    \item Độ dài trung bình sau tiền xử lý sạch: **13.15** từ.
-    \item Độ dài lớn nhất của bình luận: **78** từ.
-    \item Độ dài ngắn nhất (đã lọc): **2** từ.
+    \item Độ dài trung bình trước tiền xử lý: 15.42 từ.
+    \item Độ dài trung bình sau tiền xử lý sạch: 13.15 từ.
+    \item Độ dài lớn nhất của bình luận: 78 từ.
+    \item Độ dài ngắn nhất (đã lọc): 2 từ.
 \end{itemize}
+
+Để mô tả trực quan và chi tiết hơn đặc điểm phân phối dữ liệu Shopee, chúng tôi vẽ các biểu đồ phân tích phân phối nhãn và chiều dài câu trong Hình~\ref{fig:dataset_distribution}.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{class_distribution.png}
+        \caption{Phân phối nhãn cảm xúc tích cực và tiêu cực trong tập dữ liệu}
+        \label{fig:class_dist}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{word_distribution.png}
+        \caption{Phân phối số lượng từ trong bình luận Shopee}
+        \label{fig:word_dist}
+    \end{minipage}
+    \caption{Phân tích đặc trưng phân phối dữ liệu huấn luyện Shopee}
+    \label{fig:dataset_distribution}
+\end{figure}
 
 \newpage
 % ==========================================
@@ -235,7 +256,16 @@ Chúng tôi khảo sát 3 cấu hình Transformer:
 % ==========================================
 \section{Thực nghiệm và So sánh kết quả}
 \subsection{Kết quả thực nghiệm trên tập Test}
-Kết quả đo lường độ chính xác (Accuracy) và F1-Score trên tập kiểm thử được thống kê chi tiết trong Bảng \ref{tab:comparison_results}.
+Đồ án tiến hành đánh giá khách quan các mô hình trên tập kiểm thử (Test Set). Để có cái nhìn tổng quát nhất về hiệu suất của cả 6 mô hình, chúng tôi vẽ biểu đồ thanh so sánh trực quan độ chính xác trong Hình~\ref{fig:model_comparison}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{model_comparison.png}
+    \caption{Biểu đồ so sánh độ chính xác (Accuracy \%) giữa các mô hình thử nghiệm}
+    \label{fig:model_comparison}
+\end{figure}
+
+Kết quả đo lường cụ thể về độ chính xác (Accuracy) và F1-Score trên tập kiểm thử được thống kê chi tiết trong Bảng \ref{tab:comparison_results}.
 
 \begin{table}[H]
     \centering
@@ -254,6 +284,24 @@ Kết quả đo lường độ chính xác (Accuracy) và F1-Score trên tập k
     \caption{Bảng so sánh hiệu suất tổng hợp các mô hình}
     \label{tab:comparison_results}
 \end{table}
+
+Để phân tích chi tiết khả năng nhận diện của từng mô hình Học máy truyền thống, chúng tôi vẽ ma trận nhầm lẫn (Confusion Matrix) trên tập Test ở Hình~\ref{fig:confusion_baseline}. Qua đồ thị, có thể thấy các mô hình bắt lớp Tích cực tốt hơn lớp Tiêu cực.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{confusion_matrices_baseline.png}
+    \caption{Ma trận nhầm lẫn (Confusion Matrix) của Naive Bayes và Logistic Regression}
+    \label{fig:confusion_baseline}
+\end{figure}
+
+Bên cạnh đó, đồ thị lịch sử huấn luyện (Training History) của mô hình PyTorch Bi-LSTM qua 5 epochs được mô tả trong Hình~\ref{fig:lstm_training}, chỉ ra xu hướng hội tụ của loss và độ chính xác trên cả hai tập Train/Validation.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{lstm_training.png}
+    \caption{Đồ thị Lịch sử huấn luyện (Loss và Accuracy) của mô hình PyTorch Bi-LSTM}
+    \label{fig:lstm_training}
+\end{figure}
 
 \subsection{Bàn luận và Nhận xét chuyên sâu}
 Từ kết quả Bảng \ref{tab:comparison_results}, chúng tôi rút ra một số nhận xét khoa học như sau:
