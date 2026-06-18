@@ -109,11 +109,10 @@ class TransformerDataset(Dataset):
         text = str(self.texts[idx])
         label = self.labels[idx]
         
-        encoding = self.tokenizer.encode_plus(
+        encoding = self.tokenizer(
             text,
             add_special_tokens=True,
             max_length=self.max_len,
-            return_token_type_ids=False,
             padding='max_length',
             truncation=True,
             return_attention_mask=True,
@@ -507,11 +506,10 @@ def interactive_loop(lr_model, vectorizer, lstm_model, vocab, phobert_model, pho
                 
             # 3. PhoBERT
             phobert_model.eval()
-            encoding = phobert_tokenizer.encode_plus(
+            encoding = phobert_tokenizer(
                 cleaned,
                 add_special_tokens=True,
                 max_length=max_len_phobert,
-                return_token_type_ids=False,
                 padding='max_length',
                 truncation=True,
                 return_attention_mask=True,
