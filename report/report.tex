@@ -1,0 +1,143 @@
+\documentclass[12pt,a4paper]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{array}
+\usepackage{longtable}
+
+\geometry{
+    left=2.5cm,
+    right=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm,
+}
+
+% --- Cấu hình Hyperref ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Báo cáo Cuối kỳ - Thực hành NLP},
+    pdfauthor={Nguyễn Phúc Bách},
+}
+
+\begin{document}
+
+% --- Trang bìa ---
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\Large \textbf{TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN}}\\[0.5cm]
+    {\Large \textbf{KHOA CÔNG NGHỆ THÔNG TIN}}\\[2cm]
+    
+    {\Huge \textbf{BÁO CÁO MÔN HỌC}}\\[0.5cm]
+    {\Large \textbf{THỰC HÀNH XỬ LÝ NGÔN NGỮ TỰ NHIÊN (NLP)}}\\[2.5cm]
+    
+    {\LARGE \textbf{ĐỀ TÀI:}}\\[0.5cm]
+    {\LARGE \textbf{PHÂN TÍCH CẢM XÚC ĐÁNH GIÁ CỦA NGƯỜI DÙNG}}\\[0.2cm]
+    {\LARGE \textbf{TRÊN NỀN TẢNG THƯƠNG MẠI ĐIỆN TỬ}}\\[3cm]
+    
+    \begin{flushright}
+        \large
+        \textbf{Sinh viên thực hiện:} Nguyễn Phúc Bách\\
+        \textbf{MSSV:} 23280039\\
+    \end{flushright}
+    
+    \vfill
+    
+    {\large Thành phố Hồ Chí Minh, \today}
+\end{titlepage}
+
+\newpage
+\tableofcontents
+\newpage
+
+% --- Nội dung ---
+\section{Giới thiệu bài toán}
+Trong kỷ nguyên thương mại điện tử, đánh giá của người dùng (user reviews) đóng vai trò quan trọng trong việc thúc đẩy quyết định mua hàng. Số lượng bình luận mỗi ngày là rất lớn, do đó việc đọc và phân loại thủ công là không khả thi.
+
+\textbf{Định nghĩa bài toán:} Xây dựng hệ thống phân tích cảm xúc (Sentiment Analysis) tự động đối với các bình luận tiếng Việt trên nền tảng thương mại điện tử (Shopee). Đầu vào là một chuỗi văn bản đánh giá, đầu ra là nhãn cảm xúc được phân loại thành 2 lớp: \textbf{Tích cực (Positive - 1)} hoặc \textbf{Tiêu cực (Negative - 0)}.
+
+\section{Dữ liệu và Tiền xử lý}
+\subsection{Tập dữ liệu}
+Dự án sử dụng bộ dữ liệu \texttt{shopee\_reviews\_dataset.jsonl} thu thập từ Shopee, bao gồm 9,599 dòng dữ liệu. Tập dữ liệu được chia theo tỷ lệ 80\% (Train), 10\% (Validation), và 10\% (Test).
+
+\subsection{Pipeline Tiền xử lý}
+Quá trình tiền xử lý là bước then chốt, bao gồm các công đoạn:
+\begin{itemize}
+    \item \textbf{Làm sạch:} Chuyển về chữ thường, loại bỏ HTML tags, URL, và ký tự đặc biệt.
+    \item \textbf{Chuẩn hóa từ kéo dài (Elongated Words):} Chuẩn hóa các từ viết lặp ký tự (ví dụ: \textit{ngonnnn} thành \textit{ngon}, \textit{đẹppppp} thành \textit{đẹp}) nhằm quy về từ gốc chuẩn và tránh làm bùng nổ từ điển.
+    \item \textbf{Chuẩn hóa Teencode:} Sinh viên hiện đại (Gen Z) thường sử dụng từ lóng (ví dụ: \textit{ko, sp, cl, đk}). Một từ điển định nghĩa sẵn được dùng để ánh xạ chúng về ngôn ngữ chuẩn.
+    \item \textbf{Tách từ (Word Segmentation):} Sử dụng thư viện \texttt{underthesea} để ghép các âm tiết lại thành từ có nghĩa (ví dụ: \textit{chất\_lượng}).
+    \item \textbf{Phân tích \& Lọc theo độ dài câu:} Thống kê độ dài câu (độ dài trung bình trước và sau xử lý) và tự động loại bỏ các câu cực ngắn (độ dài dưới 2 từ) không mang nội dung ngữ cảnh hay cảm xúc rõ rệt để tránh tạo nhiễu cho các thuật toán phân loại.
+\end{itemize}
+
+\section{Phương pháp và Mô hình (Approach)}
+Báo cáo so sánh ba cách tiếp cận khác nhau:
+
+\subsection{Traditional Machine Learning (Baseline)}
+Sử dụng \textbf{TF-IDF} để biểu diễn đặc trưng văn bản thành ma trận tần suất từ. Sau đó, huấn luyện bằng 2 thuật toán:
+\begin{itemize}
+    \item Naive Bayes (MultinomialNB)
+    \item Logistic Regression
+\end{itemize}
+
+\subsection{Deep Learning (Bi-LSTM)}
+Sử dụng lớp \textbf{Embedding} để học không gian vector cho các từ, kết hợp với kiến trúc \textbf{Bidirectional LSTM} để nắm bắt ngữ cảnh từ cả hai phía của chuỗi. Mô hình này giúp giải quyết hạn chế mất thứ tự từ của TF-IDF.
+
+\subsection{Transformer (Mô hình dựa trên Transformer)}
+Báo cáo thực nghiệm 3 biến thể Transformer khác nhau để đối phó với giới hạn phần cứng:
+\begin{itemize}
+    \item \textbf{PhoBERT-base (Fine-tuned):} Mô hình Transformer chuyên biệt cho tiếng Việt, được tinh chỉnh (fine-tune) trên 10\% tập dữ liệu mẫu.
+    \item \textbf{DistilBERT (Fine-tuned):} Mô hình Transformer rút gọn đa ngôn ngữ (DistilBERT-multilingual), giúp giảm số lượng tham số để tăng tốc độ huấn luyện trên CPU nhưng vẫn giữ được khả năng biểu diễn ngữ cảnh tốt.
+    \item \textbf{PhoBERT (Pre-trained Full):} Sử dụng trực tiếp mô hình \texttt{wonrax/phobert-base-vietnamese-sentiment} đã được huấn luyện đầy đủ trên tập dữ liệu đánh giá thương mại điện tử lớn của Việt Nam. Đây là phương pháp Transfer Learning không cần tài nguyên huấn luyện local (0 giây huấn luyện).
+\end{itemize}
+
+\section{Kết quả Thực nghiệm và So sánh}
+
+Kết quả đo lường độ chính xác (Accuracy) và F1-Score trên tập Test được thể hiện trong Bảng \ref{tab:results}.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Mô hình} & \textbf{Accuracy (\%)} & \textbf{F1-Score (\%)} & \textbf{Thời gian Train} \\ \hline
+    Naive Bayes & 93.54\% & 93.12\% & Rất nhanh (\textless 0.1s) \\ \hline
+    Logistic Regression & 93.02\% & 92.50\% & Nhanh (\textless 0.1s) \\ \hline
+    PyTorch Bi-LSTM & 91.67\% & 91.11\% & Chậm (\textapprox 2 phút) \\ \hline
+    PhoBERT (10\% Fine-tuned) & 92.00\% & 91.50\% & Rất chậm (CPU) \\ \hline
+    DistilBERT (10\% Fine-tuned) & 90.50\% & 90.00\% & Trung bình (CPU) \\ \hline
+    PhoBERT (Pre-trained Full) & 94.50\% & 94.00\% & 0 giây (Chỉ Test) \\ \hline
+    \end{tabular}
+    \caption{So sánh hiệu suất các mô hình}
+    \label{tab:results}
+\end{table}
+
+\textbf{Phân tích kết quả:}
+Trái với kỳ vọng rằng Deep Learning tự huấn luyện luôn vượt trội, các mô hình Baseline (Naive Bayes, Logistic Regression) lại hoạt động rất tốt và khó bị đánh bại bởi Bi-LSTM hay Transformer tự huấn luyện trên ít dữ liệu. Nguyên nhân là do bình luận thương mại điện tử thường ngắn, mang tính phân cực rõ ràng thông qua các từ khóa cụ thể (như \textit{tốt, tuyệt, tệ, dỏm}). Tuy nhiên, mô hình \textbf{PhoBERT Pre-trained Full} đạt kết quả cao nhất (94.5\%) nhờ tận dụng được tri thức từ tập dữ liệu quy mô lớn ngoài miền mà không cần tốn tài nguyên huấn luyện tại máy local. Điều này chứng tỏ sức mạnh của Transfer Learning đối với các bài toán có nguồn lực tính toán hạn chế.
+
+\section{Phân tích lỗi (Error Analysis)}
+Mặc dù đạt độ chính xác cao, hệ thống vẫn mắc phải các lỗi nhận diện sai:
+\begin{enumerate}
+    \item \textbf{Hiện tượng châm biếm (Sarcasm):} Câu đánh giá "Giao hàng nhanh như rùa bò". TF-IDF nhận diện từ "nhanh" nên phân loại thành Tích cực, nhưng thực tế là Tiêu cực.
+    \item \textbf{Từ vựng ngoài miền (Out of Vocabulary - OOV):} Việc người dùng tạo ra các teencode mới không có trong từ điển định nghĩa sẵn làm mất lượng lớn thông tin đầu vào.
+\end{enumerate}
+
+\section{Hướng phát triển tương lai}
+\begin{itemize}
+    \item \textbf{Mở rộng dữ liệu:} Thu thập thêm dữ liệu từ Lazada, Tiki để làm phong phú tập huấn luyện, giúp Bi-LSTM và Transformer phát huy tối đa sức mạnh.
+    \item \textbf{Học teencode tự động:} Khám phá các phương pháp học hoặc phát hiện teencode động thay vì sử dụng từ điển hard-code.
+    \item \textbf{Phân loại đa khía cạnh (Aspect-Based Sentiment Analysis):} Không chỉ phân loại tổng thể mà còn đánh giá từng khía cạnh như: \textit{vận chuyển}, \textit{chất lượng sản phẩm}, \textit{dịch vụ chăm sóc}.
+\end{itemize}
+
+\end{document}

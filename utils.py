@@ -63,6 +63,9 @@ def clean_text(text):
     # Xoa html tag neu co
     text = re.sub(r'<[^>]*>', ' ', text)
     
+    # Chuan hoa tu keo dai (elongated words: ngonnnn -> ngon, đẹppppp -> đẹp)
+    text = re.sub(r'(\w)\1{2,}', r'\1', text)
+    
     # Xoa cac ky tu dac biet va dau cau
     text = re.sub(r'[^\w\s]', ' ', text)
     
